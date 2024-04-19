@@ -1,44 +1,41 @@
-version: "3"
-
-volumes:
-  mysql_data:
-    driver: local
+version: "3.6"
 
 services:
-  web:
-    build: .
-    ports:
-     - "5000:80"
-    depends_on:
-      - keycloak
-  mysql:
-    image: mysql:5.7
+  keycloak_web:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak_web
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./custome-theme/ostrich-theme/:/opt/keycloak/themes/ostrich-theme
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: keycloak
-      MYSQL_USER: keycloak
-      MYSQL_PASSWORD: password
-  keycloak:
-    image: jboss/keycloak
-    volumes: 
-      - ./starter/:/opt/jboss/keycloak/themes/starter/
-    environment:
-      DB_VENDOR: MYSQL
-      DB_ADDR: mysql
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: password
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    depends_on:
+      - keycloakdb
     ports:
       - 8080:8080
-    depends_on:
-      - mysql
-      - maildev
-  maildev:
-    image: djfarrelly/maildev
-    ports:
-    - "8081:80"
-    - "25"
+
+  keycloakdb:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+volumes:
+  postgres_data:
