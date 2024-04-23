@@ -5,7 +5,7 @@ services:
     image: quay.io/keycloak/keycloak:23.0.7
     container_name: keycloak_web
     volumes:
-      - ./custome-theme/ostrich-theme/:/opt/keycloak/themes/ostrich-theme
+      - ./custome-theme/ostrich-theme:/opt/keycloak/themes/ostrich-theme
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
